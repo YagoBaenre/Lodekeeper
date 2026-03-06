@@ -1,0 +1,28 @@
+<div class="almost-there">
+  <h1>Almost There!</h1>
+  <p class="subtitle">Collectibles that most of your FC members are close to owning.</p>
+
+  @if (items().length > 0) {
+    <div class="items-list">
+      @for (item of items(); track item.collectible.id) {
+        <div class="item-row">
+          @if (item.collectible.icon) {
+            <img [src]="item.collectible.icon" [alt]="item.collectible.name" class="item-icon" />
+          }
+          <div class="item-info">
+            <span class="item-name">{{ item.collectible.name }}</span>
+            <span class="item-type">{{ item.collectible.type }}</span>
+          </div>
+          <div class="item-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="item.percentage"></div>
+            </div>
+            <span class="progress-text">{{ item.ownedByCount }}/{{ item.totalMembers }} ({{ item.percentage }}%)</span>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <p class="empty">No "almost there" items found yet.</p>
+  }
+</div>

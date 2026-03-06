@@ -1,0 +1,76 @@
+.almost-there h1 {
+  color: #e2b714;
+  margin-bottom: 0.3rem;
+}
+
+.subtitle {
+  color: #a0a0b0;
+  margin-bottom: 2rem;
+}
+
+.items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.item-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  background: #1a1a2e;
+  border-radius: 6px;
+  border: 1px solid #16213e;
+}
+
+.item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+}
+
+.item-info {
+  flex: 1;
+
+  .item-name {
+    display: block;
+    color: #fff;
+    font-size: 0.95rem;
+  }
+
+  .item-type {
+    color: #a0a0b0;
+    font-size: 0.8rem;
+    text-transform: capitalize;
+  }
+}
+
+.item-progress {
+  min-width: 180px;
+}
+
+.progress-bar {
+  height: 6px;
+  background: #0f0f1a;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 0.3rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #e2b714;
+  border-radius: 3px;
+}
+
+.progress-text {
+  color: #a0a0b0;
+  font-size: 0.8rem;
+}
+
+.empty {
+  color: #a0a0b0;
+  text-align: center;
+  padding: 2rem;
+}

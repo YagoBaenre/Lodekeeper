@@ -1,0 +1,16 @@
+<nav class="navbar">
+  <a routerLink="/" class="navbar-brand">Lodekeeper</a>
+
+  <div class="navbar-links">
+    @if (isAuthenticated()) {
+      <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/characters" routerLinkActive="active">Characters</a>
+      <a routerLink="/collections" routerLinkActive="active">Collections</a>
+      <a routerLink="/fc" routerLinkActive="active">Free Company</a>
+      <button class="btn-logout" (click)="logout()">Logout</button>
+    } @else {
+      <a routerLink="/auth/login" routerLinkActive="active">Login</a>
+      <a routerLink="/auth/register" routerLinkActive="active">Register</a>
+    }
+  </div>
+</nav>

@@ -1,0 +1,59 @@
+@if (character(); as char) {
+  <div class="character-detail">
+    <div class="character-header">
+      <div class="portrait">
+        @if (char.portrait) {
+          <img [src]="char.portrait" [alt]="char.name" />
+        }
+      </div>
+      <div class="header-info">
+        <h1>{{ char.name }}</h1>
+        @if (char.title) {
+          <p class="title">{{ char.title }}</p>
+        }
+        <p class="server">{{ char.server }} - {{ char.dataCenter }}</p>
+        <span class="badge" [class.verified]="char.verified">
+          {{ char.verified ? 'Verified' : 'Unverified' }}
+        </span>
+      </div>
+      <div class="header-actions">
+        @if (!char.verified && char.verificationCode) {
+          <div class="verification-box">
+            <p>Add this code to your Lodestone bio:</p>
+            <code>{{ char.verificationCode }}</code>
+            <button (click)="verify()">Verify Now</button>
+          </div>
+        }
+        <button class="btn-secondary" (click)="refresh()">Refresh from Lodestone</button>
+      </div>
+    </div>
+
+    <div class="progress-grid">
+      @if (mountProgress(); as mp) {
+        <div class="progress-card">
+          <h3>Mounts</h3>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="mp.percentage"></div>
+          </div>
+          <p>{{ mp.owned }} / {{ mp.total }} ({{ mp.percentage }}%)</p>
+          <a [routerLink]="['/collections']" [queryParams]="{ characterId: char.id, type: 'mount' }">
+            View {{ mp.missing.length }} missing
+          </a>
+        </div>
+      }
+
+      @if (minionProgress(); as mp) {
+        <div class="progress-card">
+          <h3>Minions</h3>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="mp.percentage"></div>
+          </div>
+          <p>{{ mp.owned }} / {{ mp.total }} ({{ mp.percentage }}%)</p>
+          <a [routerLink]="['/collections']" [queryParams]="{ characterId: char.id, type: 'minion' }">
+            View {{ mp.missing.length }} missing
+          </a>
+        </div>
+      }
+    </div>
+  </div>
+}

@@ -1,0 +1,39 @@
+<div class="fc-overview">
+  @if (fc(); as fc) {
+    <div class="fc-header">
+      <h1>{{ fc.name }} &laquo;{{ fc.tag }}&raquo;</h1>
+      <p>{{ fc.server }} - {{ fc.memberCount }} members</p>
+      @if (fc.slogan) {
+        <p class="slogan">{{ fc.slogan }}</p>
+      }
+    </div>
+
+    <div class="fc-nav">
+      <a routerLink="/fc/leaderboard" class="nav-card">
+        <h3>Leaderboard</h3>
+        <p>Collection rankings</p>
+      </a>
+      <a routerLink="/fc/almost-there" class="nav-card">
+        <h3>Almost There</h3>
+        <p>Items your FC almost has</p>
+      </a>
+    </div>
+
+    <section>
+      <h2>Members ({{ members().length }})</h2>
+      <div class="members-list">
+        @for (member of members(); track member.id) {
+          <a [routerLink]="['/characters', member.id]" class="member-row">
+            <span class="member-name">{{ member.name }}</span>
+            <span class="member-server">{{ member.server }}</span>
+          </a>
+        }
+      </div>
+    </section>
+  } @else {
+    <div class="empty-state">
+      <h1>Free Company</h1>
+      <p>No Free Company linked. Link a character that belongs to an FC to see this dashboard.</p>
+    </div>
+  }
+</div>

@@ -1,0 +1,26 @@
+<div class="link-container">
+  <h1>Link Character</h1>
+  <p class="description">Enter your Lodestone character ID to link your FFXIV character.</p>
+
+  @if (error()) {
+    <div class="error-message">{{ error() }}</div>
+  }
+
+  <form (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="lodestoneId">Lodestone ID</label>
+      <input
+        id="lodestoneId"
+        type="text"
+        [(ngModel)]="lodestoneId"
+        name="lodestoneId"
+        placeholder="e.g. 12345678"
+        required
+      />
+    </div>
+
+    <button type="submit" [disabled]="loading()">
+      {{ loading() ? 'Linking...' : 'Link Character' }}
+    </button>
+  </form>
+</div>

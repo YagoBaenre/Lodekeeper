@@ -1,0 +1,151 @@
+.character-header {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.portrait {
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0f0f1a;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.header-info {
+  flex: 1;
+
+  h1 {
+    color: #e2b714;
+    margin: 0 0 0.3rem;
+  }
+
+  .title {
+    color: #a0a0b0;
+    font-style: italic;
+    margin: 0 0 0.3rem;
+  }
+
+  .server {
+    color: #a0a0b0;
+    margin: 0 0 0.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  background: rgba(255, 68, 68, 0.15);
+  color: #ff6666;
+
+  &.verified {
+    background: rgba(0, 200, 100, 0.15);
+    color: #00c864;
+  }
+}
+
+.verification-box {
+  background: #1a1a2e;
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid #2a2a4a;
+  margin-bottom: 0.5rem;
+
+  p {
+    color: #a0a0b0;
+    margin: 0 0 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  code {
+    display: block;
+    background: #0f0f1a;
+    padding: 0.5rem;
+    border-radius: 4px;
+    color: #e2b714;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  button {
+    width: 100%;
+    padding: 0.5rem;
+    background: #e2b714;
+    color: #1a1a2e;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+}
+
+.btn-secondary {
+  background: none;
+  border: 1px solid #a0a0b0;
+  color: #a0a0b0;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+
+  &:hover {
+    border-color: #e2b714;
+    color: #e2b714;
+  }
+}
+
+.progress-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.progress-card {
+  background: #1a1a2e;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #16213e;
+
+  h3 {
+    color: #fff;
+    margin: 0 0 1rem;
+  }
+
+  p {
+    color: #a0a0b0;
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+  }
+
+  a {
+    color: #e2b714;
+    text-decoration: none;
+    font-size: 0.85rem;
+  }
+}
+
+.progress-bar {
+  height: 8px;
+  background: #0f0f1a;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #e2b714;
+  border-radius: 4px;
+  transition: width 0.3s;
+}
