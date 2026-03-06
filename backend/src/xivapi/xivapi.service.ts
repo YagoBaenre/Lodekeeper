@@ -5,6 +5,15 @@ import { firstValueFrom } from 'rxjs';
 import { CollectionsService } from '../collections/collections.service';
 import { CollectibleType } from '../database/entities';
 
+interface XivApiRow {
+  row_id: number;
+  fields: Record<string, unknown>;
+}
+
+interface XivApiResponse {
+  rows: XivApiRow[];
+}
+
 @Injectable()
 export class XivapiService {
   private readonly logger = new Logger(XivapiService.name);
@@ -18,43 +27,47 @@ export class XivapiService {
     this.baseUrl = this.configService.get<string>('XIVAPI_BASE_URL')!;
   }
 
-  /**
-   * Fetch a sheet from XIVAPI v2.
-   * Example: fetchSheet('Mount', 'Name,Icon')
-   */
-  async fetchSheet(sheetName: string, fields: string, limit = 500) {
-    const url = `${this.baseUrl}/api/sheet/${sheetName}?fields=${fields}&limit=${limit}`;
-    this.logger.log(`Fetching sheet: ${sheetName}`);
+  async fetchSheet(sheetName: string, fields: string, limit = 500, after?: number): Promise<XivApiResponse> {
+    let url = `${this.baseUrl}/api/sheet/${sheetName}?fields=${fields}&limit=${limit}&language=en`;
+    if (after !== undefined) url += `&after=${after}`;
+    this.logger.log(`Fetching sheet: ${sheetName} (after=${after ?? 'start'})`);
 
-    const { data } = await firstValueFrom(this.httpService.get(url));
+    const { data } = await firstValueFrom(this.httpService.get<XivApiResponse>(url));
     return data;
   }
 
-  /**
-   * Fetch a single row from a sheet.
-   * Example: fetchSheetRow('Mount', 1, 'Name,Icon')
-   */
-  async fetchSheetRow(sheetName: string, rowId: number, fields: string) {
-    const url = `${this.baseUrl}/api/sheet/${sheetName}/${rowId}?fields=${fields}`;
-    const { data } = await firstValueFrom(this.httpService.get(url));
-    return data;
+  async fetchAllRows(sheetName: string, fields: string): Promise<XivApiRow[]> {
+    const allRows: XivApiRow[] = [];
+    let after: number | undefined;
+
+    while (true) {
+      const data = await this.fetchSheet(sheetName, fields, 500, after);
+      if (!data.rows || data.rows.length === 0) break;
+
+      allRows.push(...data.rows);
+
+      if (data.rows.length < 500) break;
+      after = data.rows[data.rows.length - 1].row_id;
+    }
+
+    return allRows;
   }
 
-  /**
-   * Sync all mounts from XIVAPI v2 into the local database.
-   */
   async syncMounts(): Promise<number> {
     this.logger.log('Syncing mounts from XIVAPI v2...');
-    const data = await this.fetchSheet('Mount', 'Name,Icon,Order');
+    const rows = await this.fetchAllRows('Mount', 'Singular,Icon');
     let count = 0;
 
-    for (const row of data.rows ?? []) {
-      if (!row.fields?.Name) continue;
+    for (const row of rows) {
+      const name = row.fields.Singular as string;
+      if (!name) continue;
+
+      const icon = row.fields.Icon as { path?: string } | undefined;
       await this.collectionsService.upsertCollectible({
         xivapiId: row.row_id,
         type: CollectibleType.MOUNT,
-        name: row.fields.Name,
-        icon: row.fields.Icon?.path ?? null,
+        name: name.charAt(0).toUpperCase() + name.slice(1),
+        icon: icon?.path ?? undefined,
       });
       count++;
     }
@@ -63,21 +76,21 @@ export class XivapiService {
     return count;
   }
 
-  /**
-   * Sync all minions (Companion sheet) from XIVAPI v2 into the local database.
-   */
   async syncMinions(): Promise<number> {
     this.logger.log('Syncing minions from XIVAPI v2...');
-    const data = await this.fetchSheet('Companion', 'Name,Icon');
+    const rows = await this.fetchAllRows('Companion', 'Singular,Icon');
     let count = 0;
 
-    for (const row of data.rows ?? []) {
-      if (!row.fields?.Name) continue;
+    for (const row of rows) {
+      const name = row.fields.Singular as string;
+      if (!name) continue;
+
+      const icon = row.fields.Icon as { path?: string } | undefined;
       await this.collectionsService.upsertCollectible({
         xivapiId: row.row_id,
         type: CollectibleType.MINION,
-        name: row.fields.Name,
-        icon: row.fields.Icon?.path ?? null,
+        name: name.charAt(0).toUpperCase() + name.slice(1),
+        icon: icon?.path ?? undefined,
       });
       count++;
     }
@@ -86,22 +99,24 @@ export class XivapiService {
     return count;
   }
 
-  /**
-   * Sync all achievements from XIVAPI v2 into the local database.
-   */
   async syncAchievements(): Promise<number> {
     this.logger.log('Syncing achievements from XIVAPI v2...');
-    const data = await this.fetchSheet('Achievement', 'Name,Description,Icon,Points');
+    const rows = await this.fetchAllRows('Achievement', 'Name,Description,Icon,AchievementCategory.Name');
     let count = 0;
 
-    for (const row of data.rows ?? []) {
-      if (!row.fields?.Name) continue;
+    for (const row of rows) {
+      const name = row.fields.Name as string;
+      if (!name) continue;
+
+      const icon = row.fields.Icon as { path?: string } | undefined;
+      const category = row.fields.AchievementCategory as { fields?: { Name?: string } } | undefined;
+
       await this.collectionsService.upsertAchievement({
         xivapiId: row.row_id,
-        name: row.fields.Name,
-        description: row.fields.Description ?? null,
-        icon: row.fields.Icon?.path ?? null,
-        points: row.fields.Points ?? 0,
+        name,
+        description: (row.fields.Description as string) ?? undefined,
+        icon: icon?.path ?? undefined,
+        category: category?.fields?.Name ?? undefined,
       });
       count++;
     }
@@ -110,9 +125,6 @@ export class XivapiService {
     return count;
   }
 
-  /**
-   * Sync all game data catalogs.
-   */
   async syncAll(): Promise<{ mounts: number; minions: number; achievements: number }> {
     const mounts = await this.syncMounts();
     const minions = await this.syncMinions();

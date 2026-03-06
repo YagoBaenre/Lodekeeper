@@ -1,9 +1,8 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
-import { LODESTONE_QUEUE } from './queue.module';
+import { LODESTONE_QUEUE } from './queue.constants';
 import { CharactersService } from '../characters/characters.service';
-import { CollectionsService } from '../collections/collections.service';
 import { LodestoneService } from '../lodestone/lodestone.service';
 
 export interface LodestoneJobData {
@@ -20,7 +19,6 @@ export class LodestoneScrapingProcessor extends WorkerHost {
 
   constructor(
     private readonly charactersService: CharactersService,
-    private readonly collectionsService: CollectionsService,
     private readonly lodestoneService: LodestoneService,
   ) {
     super();
@@ -31,16 +29,12 @@ export class LodestoneScrapingProcessor extends WorkerHost {
     this.logger.log(`Processing Lodestone scrape for character ${lodestoneId}`);
 
     try {
-      await this.charactersService.refreshFromLodestone(characterId);
-
       const lodestoneData = await this.lodestoneService.fetchCharacter(lodestoneId);
-
-      // TODO: Map lodestone mount/minion names to collectible IDs and sync
-      this.logger.log(
-        `Scraped ${lodestoneData.mounts?.length ?? 0} mounts, ${lodestoneData.minions?.length ?? 0} minions`,
-      );
-    } catch (error) {
-      this.logger.error(`Failed to scrape character ${lodestoneId}`, error.message);
+      await this.charactersService.refreshFromLodestone(characterId);
+      this.logger.log(`Scraped character: ${lodestoneData.name} (${lodestoneData.server})`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to scrape character ${lodestoneId}`, message);
       throw error;
     }
   }

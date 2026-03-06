@@ -7,9 +7,7 @@ import { LodestoneModule } from '../lodestone/lodestone.module';
 import { CharactersModule } from '../characters/characters.module';
 import { CollectionsModule } from '../collections/collections.module';
 import { XivapiModule } from '../xivapi/xivapi.module';
-
-export const LODESTONE_QUEUE = 'lodestone-scraping';
-export const XIVAPI_SYNC_QUEUE = 'xivapi-sync';
+import { LODESTONE_QUEUE, XIVAPI_SYNC_QUEUE } from './queue.constants';
 
 @Module({
   imports: [

@@ -14,7 +14,7 @@ export enum UserRole {
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
-  user: { id: number; email: string };
+  user: { id: number; email: string; role: UserRole };
 }
 
 export interface LoginRequest {

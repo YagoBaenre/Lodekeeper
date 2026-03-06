@@ -29,6 +29,7 @@
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/typeorm": "^11.0.0",
+    "@xivapi/nodestone": "^0.2.7",
     "axios": "^1.13.6",
     "bcrypt": "^6.0.0",
     "bullmq": "^5.70.4",

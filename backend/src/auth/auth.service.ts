@@ -6,6 +6,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
+import { UserRole } from '../database/entities';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 
@@ -28,7 +29,7 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    return this.generateTokens(user.id, user.email);
+    return this.generateTokens(user.id, user.email, user.role);
   }
 
   async login(dto: LoginDto) {
@@ -42,7 +43,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return this.generateTokens(user.id, user.email);
+    return this.generateTokens(user.id, user.email, user.role);
   }
 
   async refreshToken(userId: number) {
@@ -50,15 +51,15 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-    return this.generateTokens(user.id, user.email);
+    return this.generateTokens(user.id, user.email, user.role);
   }
 
-  private generateTokens(userId: number, email: string) {
-    const payload = { sub: userId, email };
+  private generateTokens(userId: number, email: string, role: UserRole) {
+    const payload = { sub: userId, email, role };
     return {
       accessToken: this.jwtService.sign(payload),
       refreshToken: this.jwtService.sign(payload, { expiresIn: '7d' }),
-      user: { id: userId, email },
+      user: { id: userId, email, role },
     };
   }
 }
