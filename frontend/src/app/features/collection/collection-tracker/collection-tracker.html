@@ -1,0 +1,34 @@
+<div class="collection-tracker">
+  <h1>Collections</h1>
+
+  <div class="type-tabs">
+    @for (type of types; track type.value) {
+      <button
+        class="tab"
+        [class.active]="activeType() === type.value"
+        (click)="setType(type.value)"
+      >
+        {{ type.label }}
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <p class="loading">Loading...</p>
+  } @else {
+    <div class="collectible-grid">
+      @for (item of collectibles(); track item.id) {
+        <div class="collectible-card">
+          @if (item.icon) {
+            <img [src]="item.icon" [alt]="item.name" class="collectible-icon" />
+          }
+          <span class="collectible-name">{{ item.name }}</span>
+        </div>
+      }
+    </div>
+
+    @if (collectibles().length === 0) {
+      <p class="empty">No collectibles found for this category.</p>
+    }
+  }
+</div>

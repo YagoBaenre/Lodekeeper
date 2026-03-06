@@ -1,0 +1,17 @@
+<div class="leaderboard">
+  <h1>FC Leaderboard</h1>
+
+  @if (leaderboard().length > 0) {
+    <div class="leaderboard-list">
+      @for (entry of leaderboard(); track entry.characterId) {
+        <div class="leaderboard-row" [class.top-3]="entry.rank <= 3">
+          <span class="rank">#{{ entry.rank }}</span>
+          <span class="name">{{ entry.characterName }}</span>
+          <span class="count">{{ entry.totalCollectibles }} collectibles</span>
+        </div>
+      }
+    </div>
+  } @else {
+    <p class="empty">No leaderboard data available.</p>
+  }
+</div>

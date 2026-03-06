@@ -1,0 +1,36 @@
+<div class="dashboard">
+  <h1>Dashboard</h1>
+
+  <section class="characters-section">
+    <div class="section-header">
+      <h2>My Characters</h2>
+      <a routerLink="/characters/link" class="btn-primary">Link Character</a>
+    </div>
+
+    @if (characters().length === 0) {
+      <div class="empty-state">
+        <p>No characters linked yet.</p>
+        <a routerLink="/characters/link">Link your first character</a>
+      </div>
+    } @else {
+      <div class="character-grid">
+        @for (char of characters(); track char.id) {
+          <a [routerLink]="['/characters', char.id]" class="character-card">
+            <div class="character-portrait">
+              @if (char.portrait) {
+                <img [src]="char.portrait" [alt]="char.name" />
+              }
+            </div>
+            <div class="character-info">
+              <h3>{{ char.name }}</h3>
+              <p>{{ char.server }} - {{ char.dataCenter }}</p>
+              <span class="badge" [class.verified]="char.verified">
+                {{ char.verified ? 'Verified' : 'Unverified' }}
+              </span>
+            </div>
+          </a>
+        }
+      </div>
+    }
+  </section>
+</div>
