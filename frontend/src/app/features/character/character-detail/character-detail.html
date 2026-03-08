@@ -1,57 +1,72 @@
-@if (character(); as char) {
-  <div class="character-detail">
-    <div class="character-header">
-      <div class="portrait">
-        @if (char.portrait) {
-          <img [src]="char.portrait" [alt]="char.name" />
-        }
-      </div>
-      <div class="header-info">
-        <h1>{{ char.name }}</h1>
+@if (loading()) {
+  <div class="flex items-center justify-center py-32">
+    <p-progressSpinner strokeWidth="4" />
+  </div>
+} @else if (error()) {
+  <div class="px-6 py-8 max-w-6xl mx-auto">
+    <p-message severity="error">{{ error() }}</p-message>
+  </div>
+} @else if (character(); as char) {
+  <div class="px-6 py-8 max-w-6xl mx-auto">
+
+    <!-- Character Header -->
+    <div class="rounded-2xl p-6 mb-6 flex flex-wrap gap-6" style="background: var(--p-content-background); border: 1px solid var(--p-content-border-color)">
+      @if (char.portrait) {
+        <img [src]="char.portrait" [alt]="char.name" class="w-28 h-28 rounded-xl object-cover shrink-0" />
+      }
+      <div class="flex-1 min-w-0">
+        <h1 class="text-4xl font-bold mb-1" style="color: var(--p-primary-color)">{{ char.name }}</h1>
         @if (char.title) {
-          <p class="title">{{ char.title }}</p>
+          <p class="text-surface-400 italic mb-1">{{ char.title }}</p>
         }
-        <p class="server">{{ char.server }} - {{ char.dataCenter }}</p>
-        <span class="badge" [class.verified]="char.verified">
-          {{ char.verified ? 'Verified' : 'Unverified' }}
-        </span>
+        <p class="text-surface-400 text-sm mb-3">{{ char.server }} &mdash; {{ char.dataCenter }}</p>
+        <p-tag
+          [value]="char.verified ? 'Verified' : 'Unverified'"
+          [severity]="char.verified ? 'success' : 'danger'"
+        />
       </div>
-      <div class="header-actions">
+      <div class="flex flex-col gap-3 items-start">
         @if (!char.verified && char.verificationCode) {
-          <div class="verification-box">
-            <p>Add this code to your Lodestone bio:</p>
-            <code>{{ char.verificationCode }}</code>
-            <button (click)="verify()">Verify Now</button>
+          <div class="rounded-xl p-4 text-sm" style="background: #0f0f1a; border: 1px solid var(--p-content-border-color)">
+            <p class="text-surface-400 mb-2">Add this code to your Lodestone bio:</p>
+            <code class="block text-center text-lg px-3 py-2 rounded-lg mb-3" style="color: var(--p-primary-color); background: #1a1a2a">{{ char.verificationCode }}</code>
+            <p-button label="Verify Now" icon="pi pi-check" styleClass="w-full" (onClick)="verify()" />
           </div>
         }
-        <button class="btn-secondary" (click)="refresh()">Refresh from Lodestone</button>
+        <p-button label="Refresh from Lodestone" icon="pi pi-refresh" severity="secondary" (onClick)="refresh()" />
       </div>
     </div>
 
-    <div class="progress-grid">
+    <!-- Progress Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       @if (mountProgress(); as mp) {
-        <div class="progress-card">
-          <h3>Mounts</h3>
-          <div class="progress-bar">
-            <div class="progress-fill" [style.width.%]="mp.percentage"></div>
+        <div class="rounded-2xl p-6" style="background: var(--p-content-background); border: 1px solid var(--p-content-border-color)">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-surface-0 font-semibold text-lg">Mounts</h3>
+            <p-tag [value]="mp.owned + ' / ' + mp.total" severity="info" />
           </div>
-          <p>{{ mp.owned }} / {{ mp.total }} ({{ mp.percentage }}%)</p>
-          <a [routerLink]="['/collections']" [queryParams]="{ characterId: char.id, type: 'mount' }">
-            View {{ mp.missing.length }} missing
-          </a>
+          <p-progressBar [value]="mp.percentage" class="mb-3" />
+          <div class="flex justify-between items-center">
+            <span class="text-surface-400 text-sm">{{ mp.percentage }}%</span>
+            <a [routerLink]="['/collections']" [queryParams]="{ characterId: char.id, type: 'mount' }" class="text-sm no-underline hover:underline" style="color: var(--p-primary-color)">
+              View {{ mp.missing.length }} missing
+            </a>
+          </div>
         </div>
       }
-
       @if (minionProgress(); as mp) {
-        <div class="progress-card">
-          <h3>Minions</h3>
-          <div class="progress-bar">
-            <div class="progress-fill" [style.width.%]="mp.percentage"></div>
+        <div class="rounded-2xl p-6" style="background: var(--p-content-background); border: 1px solid var(--p-content-border-color)">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-surface-0 font-semibold text-lg">Minions</h3>
+            <p-tag [value]="mp.owned + ' / ' + mp.total" severity="info" />
           </div>
-          <p>{{ mp.owned }} / {{ mp.total }} ({{ mp.percentage }}%)</p>
-          <a [routerLink]="['/collections']" [queryParams]="{ characterId: char.id, type: 'minion' }">
-            View {{ mp.missing.length }} missing
-          </a>
+          <p-progressBar [value]="mp.percentage" class="mb-3" />
+          <div class="flex justify-between items-center">
+            <span class="text-surface-400 text-sm">{{ mp.percentage }}%</span>
+            <a [routerLink]="['/collections']" [queryParams]="{ characterId: char.id, type: 'minion' }" class="text-sm no-underline hover:underline" style="color: var(--p-primary-color)">
+              View {{ mp.missing.length }} missing
+            </a>
+          </div>
         </div>
       }
     </div>

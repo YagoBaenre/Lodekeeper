@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { randomBytes } from 'crypto';
 import { Character } from '../database/entities';
 import { LodestoneService } from '../lodestone/lodestone.service';
+import { FreeCompanyService } from '../free-company/free-company.service';
 import { LinkCharacterDto } from './dto/link-character.dto';
 
 @Injectable()
@@ -17,6 +18,7 @@ export class CharactersService {
     @InjectRepository(Character)
     private readonly characterRepository: Repository<Character>,
     private readonly lodestoneService: LodestoneService,
+    private readonly freeCompanyService: FreeCompanyService,
   ) {}
 
   async link(userId: number, dto: LinkCharacterDto): Promise<Character> {
@@ -30,6 +32,12 @@ export class CharactersService {
     const lodestoneData = await this.lodestoneService.fetchCharacter(dto.lodestoneId);
     const verificationCode = `LK-${randomBytes(4).toString('hex')}`;
 
+    let freeCompanyId: number | undefined;
+    if (lodestoneData.freeCompany) {
+      const fc = await this.linkFreeCompany(lodestoneData.freeCompany.lodestoneId);
+      freeCompanyId = fc.id;
+    }
+
     const character = this.characterRepository.create({
       lodestoneId: dto.lodestoneId,
       name: lodestoneData.name,
@@ -39,9 +47,11 @@ export class CharactersService {
       title: lodestoneData.title,
       verificationCode,
       userId,
+      freeCompanyId,
     });
 
-    return this.characterRepository.save(character);
+    const saved = await this.characterRepository.save(character);
+    return this.findById(saved.id);
   }
 
   async verify(characterId: number, userId: number): Promise<Character> {
@@ -53,7 +63,7 @@ export class CharactersService {
     }
 
     const lodestoneData = await this.lodestoneService.fetchCharacter(character.lodestoneId);
-    const bioContainsCode = lodestoneData.bio?.includes(character.verificationCode);
+    const bioContainsCode = lodestoneData.bio?.includes(character.verificationCode!);
 
     if (!bioContainsCode) {
       throw new BadRequestException(
@@ -62,12 +72,15 @@ export class CharactersService {
     }
 
     character.verified = true;
-    character.verificationCode = undefined as any;
+    character.verificationCode = null;
     return this.characterRepository.save(character);
   }
 
   async findByUser(userId: number): Promise<Character[]> {
-    return this.characterRepository.find({ where: { userId } });
+    return this.characterRepository.find({
+      where: { userId },
+      relations: ['freeCompany'],
+    });
   }
 
   async findById(id: number): Promise<Character> {
@@ -96,6 +109,25 @@ export class CharactersService {
     character.title = lodestoneData.title ?? character.title;
     character.lastScrapedAt = new Date();
 
+    if (lodestoneData.freeCompany && !character.freeCompanyId) {
+      const fc = await this.linkFreeCompany(lodestoneData.freeCompany.lodestoneId);
+      character.freeCompanyId = fc.id;
+    }
+
     return this.characterRepository.save(character);
+  }
+
+  private async linkFreeCompany(lodestoneFcId: string) {
+    const fcData = await this.lodestoneService.fetchFreeCompany(lodestoneFcId);
+    return this.freeCompanyService.upsertFromLodestone({
+      lodestoneId: fcData.lodestoneId,
+      name: fcData.name,
+      server: fcData.server,
+      tag: fcData.tag,
+      memberCount: fcData.memberCount,
+      slogan: fcData.slogan,
+      crest: fcData.crest,
+      lastScrapedAt: new Date(),
+    });
   }
 }

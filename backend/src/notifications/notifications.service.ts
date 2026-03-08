@@ -31,7 +31,7 @@ export class NotificationsService {
       );
       this.logger.log('Discord webhook sent successfully');
     } catch (error) {
-      this.logger.error('Failed to send Discord webhook', error.message);
+      this.logger.error('Failed to send Discord webhook', (error as Error).message);
     }
   }
 

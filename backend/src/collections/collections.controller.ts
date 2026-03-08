@@ -1,8 +1,10 @@
 import {
+  Body,
   Controller,
   Get,
   Param,
   ParseIntPipe,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -15,8 +17,8 @@ export class CollectionsController {
   constructor(private readonly collectionsService: CollectionsService) {}
 
   @Get('collectibles')
-  findAllCollectibles(@Query('type') type?: CollectibleType) {
-    return this.collectionsService.findAllCollectibles(type);
+  findAllCollectibles(@Query('type') type?: CollectibleType, @Query('search') search?: string) {
+    return this.collectionsService.findAllCollectibles(type, search);
   }
 
   @Get('collectibles/:id')
@@ -29,8 +31,18 @@ export class CollectionsController {
   getCharacterCollection(
     @Param('id', ParseIntPipe) id: number,
     @Query('type') type?: CollectibleType,
+    @Query('search') search?: string,
   ) {
-    return this.collectionsService.getCharacterCollection(id, type);
+    return this.collectionsService.getCharacterCollection(id, type, search);
+  }
+
+  @Post('characters/:id/collections/toggle')
+  @UseGuards(JwtAuthGuard)
+  toggleCollectible(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('collectibleId', ParseIntPipe) collectibleId: number,
+  ) {
+    return this.collectionsService.toggleCharacterCollectible(id, collectibleId);
   }
 
   @Get('characters/:id/achievements')

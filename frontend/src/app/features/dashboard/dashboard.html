@@ -1,36 +1,39 @@
-<div class="dashboard">
-  <h1>Dashboard</h1>
+<div class="px-6 py-8 max-w-6xl mx-auto">
 
-  <section class="characters-section">
-    <div class="section-header">
-      <h2>My Characters</h2>
-      <a routerLink="/characters/link" class="btn-primary">Link Character</a>
+  <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
+    <h1 class="text-4xl font-bold" style="color: var(--p-primary-color)">Dashboard</h1>
+    <p-button label="Link Character" icon="pi pi-plus" routerLink="/characters/link" />
+  </div>
+
+  @if (characters().length === 0) {
+    <div class="flex flex-col items-center justify-center py-24 text-center">
+      <i class="pi pi-users text-8xl mb-6" style="color: rgba(212,175,55,0.2)"></i>
+      <p class="text-surface-400 text-lg mb-6">No characters linked yet.</p>
+      <p-button label="Link your first character" icon="pi pi-link" severity="secondary" routerLink="/characters/link" />
     </div>
-
-    @if (characters().length === 0) {
-      <div class="empty-state">
-        <p>No characters linked yet.</p>
-        <a routerLink="/characters/link">Link your first character</a>
-      </div>
-    } @else {
-      <div class="character-grid">
-        @for (char of characters(); track char.id) {
-          <a [routerLink]="['/characters', char.id]" class="character-card">
-            <div class="character-portrait">
-              @if (char.portrait) {
-                <img [src]="char.portrait" [alt]="char.name" />
-              }
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (char of characters(); track char.id) {
+        <a [routerLink]="['/characters', char.id]" class="no-underline block">
+          <div class="flex items-center gap-4 p-5 rounded-2xl cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+               style="background: var(--p-content-background); border: 1px solid var(--p-content-border-color)">
+            <p-avatar
+              [image]="char.portrait || ''"
+              [label]="char.portrait ? '' : char.name.charAt(0)"
+              size="xlarge"
+              shape="circle"
+            />
+            <div class="flex-1 min-w-0">
+              <h3 class="text-surface-0 font-semibold text-lg mb-0.5 truncate">{{ char.name }}</h3>
+              <p class="text-surface-400 text-sm mb-2">{{ char.server }} &mdash; {{ char.dataCenter }}</p>
+              <p-tag
+                [value]="char.verified ? 'Verified' : 'Unverified'"
+                [severity]="char.verified ? 'success' : 'danger'"
+              />
             </div>
-            <div class="character-info">
-              <h3>{{ char.name }}</h3>
-              <p>{{ char.server }} - {{ char.dataCenter }}</p>
-              <span class="badge" [class.verified]="char.verified">
-                {{ char.verified ? 'Verified' : 'Unverified' }}
-              </span>
-            </div>
-          </a>
-        }
-      </div>
-    }
-  </section>
+          </div>
+        </a>
+      }
+    </div>
+  }
 </div>

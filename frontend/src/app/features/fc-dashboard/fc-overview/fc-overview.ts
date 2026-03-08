@@ -1,12 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Tag } from 'primeng/tag';
 import { CharacterService } from '../../../core/services/character.service';
 import { FcService } from '../../../core/services/fc.service';
 import { Character, FreeCompany } from '../../../core/models';
 
 @Component({
   selector: 'app-fc-overview',
-  imports: [RouterLink],
+  imports: [RouterLink, Tag],
   templateUrl: './fc-overview.html',
   styleUrl: './fc-overview.scss',
 })

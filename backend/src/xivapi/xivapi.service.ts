@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
@@ -15,7 +15,7 @@ interface XivApiResponse {
 }
 
 @Injectable()
-export class XivapiService {
+export class XivapiService implements OnApplicationBootstrap {
   private readonly logger = new Logger(XivapiService.name);
   private readonly baseUrl: string;
 
@@ -25,6 +25,19 @@ export class XivapiService {
     private readonly collectionsService: CollectionsService,
   ) {
     this.baseUrl = this.configService.get<string>('XIVAPI_BASE_URL')!;
+  }
+
+  async onApplicationBootstrap() {
+    try {
+      const emotes = await this.collectionsService.findAllCollectibles(CollectibleType.EMOTE);
+      if (emotes.length === 0) {
+        this.logger.log('No emotes found in DB — auto-syncing emotes and titles...');
+        await this.syncEmotes();
+        await this.syncTitles();
+      }
+    } catch (error) {
+      this.logger.error('Auto-sync on startup failed', (error as Error).message);
+    }
   }
 
   async fetchSheet(sheetName: string, fields: string, limit = 500, after?: number): Promise<XivApiResponse> {
@@ -125,10 +138,57 @@ export class XivapiService {
     return count;
   }
 
-  async syncAll(): Promise<{ mounts: number; minions: number; achievements: number }> {
+  async syncEmotes(): Promise<number> {
+    this.logger.log('Syncing emotes from XIVAPI v2...');
+    const rows = await this.fetchAllRows('Emote', 'Name,Icon');
+    let count = 0;
+
+    for (const row of rows) {
+      const name = row.fields.Name as string;
+      if (!name) continue;
+
+      const icon = row.fields.Icon as { path?: string } | undefined;
+      await this.collectionsService.upsertCollectible({
+        xivapiId: row.row_id,
+        type: CollectibleType.EMOTE,
+        name,
+        icon: icon?.path ?? undefined,
+      });
+      count++;
+    }
+
+    this.logger.log(`Synced ${count} emotes`);
+    return count;
+  }
+
+  async syncTitles(): Promise<number> {
+    this.logger.log('Syncing titles from XIVAPI v2...');
+    const rows = await this.fetchAllRows('Title', 'Masculine,Feminine');
+    let count = 0;
+
+    for (const row of rows) {
+      const name = (row.fields.Masculine as string) || (row.fields.Feminine as string);
+      if (!name) continue;
+
+      await this.collectionsService.upsertCollectible({
+        xivapiId: row.row_id,
+        type: CollectibleType.TITLE,
+        name,
+        icon: undefined,
+      });
+      count++;
+    }
+
+    this.logger.log(`Synced ${count} titles`);
+    return count;
+  }
+
+  async syncAll(): Promise<{ mounts: number; minions: number; emotes: number; titles: number; achievements: number }> {
     const mounts = await this.syncMounts();
     const minions = await this.syncMinions();
+    const emotes = await this.syncEmotes();
+    const titles = await this.syncTitles();
     const achievements = await this.syncAchievements();
-    return { mounts, minions, achievements };
+    return { mounts, minions, emotes, titles, achievements };
   }
 }

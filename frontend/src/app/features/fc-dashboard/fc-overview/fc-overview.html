@@ -1,39 +1,56 @@
-<div class="fc-overview">
+<div class="px-6 py-8 max-w-6xl mx-auto">
   @if (fc(); as fc) {
-    <div class="fc-header">
-      <h1>{{ fc.name }} &laquo;{{ fc.tag }}&raquo;</h1>
-      <p>{{ fc.server }} - {{ fc.memberCount }} members</p>
+
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold mb-1" style="color: var(--p-primary-color)">{{ fc.name }} &laquo;{{ fc.tag }}&raquo;</h1>
+      <p class="text-surface-400">{{ fc.server }} &mdash; {{ fc.memberCount }} members</p>
       @if (fc.slogan) {
-        <p class="slogan">{{ fc.slogan }}</p>
+        <p class="text-surface-400 italic mt-1">{{ fc.slogan }}</p>
       }
     </div>
 
-    <div class="fc-nav">
-      <a routerLink="/fc/leaderboard" class="nav-card">
-        <h3>Leaderboard</h3>
-        <p>Collection rankings</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <a routerLink="/fc/leaderboard" class="no-underline">
+        <div class="flex items-center gap-4 p-6 rounded-2xl cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+             style="background: var(--p-content-background); border: 1px solid var(--p-content-border-color)">
+          <i class="pi pi-trophy text-4xl" style="color: var(--p-primary-color)"></i>
+          <div>
+            <h3 class="text-surface-0 font-semibold text-lg mb-0.5">Leaderboard</h3>
+            <p class="text-surface-400 text-sm">Collection rankings</p>
+          </div>
+        </div>
       </a>
-      <a routerLink="/fc/almost-there" class="nav-card">
-        <h3>Almost There</h3>
-        <p>Items your FC almost has</p>
+      <a routerLink="/fc/almost-there" class="no-underline">
+        <div class="flex items-center gap-4 p-6 rounded-2xl cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+             style="background: var(--p-content-background); border: 1px solid var(--p-content-border-color)">
+          <i class="pi pi-star text-4xl" style="color: var(--p-primary-color)"></i>
+          <div>
+            <h3 class="text-surface-0 font-semibold text-lg mb-0.5">Almost There</h3>
+            <p class="text-surface-400 text-sm">Items your FC almost has</p>
+          </div>
+        </div>
       </a>
     </div>
 
-    <section>
-      <h2>Members ({{ members().length }})</h2>
-      <div class="members-list">
-        @for (member of members(); track member.id) {
-          <a [routerLink]="['/characters', member.id]" class="member-row">
-            <span class="member-name">{{ member.name }}</span>
-            <span class="member-server">{{ member.server }}</span>
-          </a>
-        }
+    <div class="rounded-2xl overflow-hidden" style="background: var(--p-content-background); border: 1px solid var(--p-content-border-color)">
+      <div class="flex items-center justify-between px-6 py-4" style="border-bottom: 1px solid var(--p-content-border-color)">
+        <h2 class="text-surface-0 font-semibold text-lg">Members</h2>
+        <p-tag [value]="members().length.toString()" severity="info" />
       </div>
-    </section>
+      @for (member of members(); track member.id) {
+        <a [routerLink]="['/characters', member.id]" class="flex items-center justify-between px-6 py-3 no-underline transition-colors hover:bg-white/5"
+           style="border-bottom: 1px solid var(--p-content-border-color)">
+          <span class="text-surface-100 font-medium">{{ member.name }}</span>
+          <span class="text-surface-400 text-sm">{{ member.server }}</span>
+        </a>
+      }
+    </div>
+
   } @else {
-    <div class="empty-state">
-      <h1>Free Company</h1>
-      <p>No Free Company linked. Link a character that belongs to an FC to see this dashboard.</p>
+    <div class="flex flex-col items-center justify-center py-24 text-center">
+      <i class="pi pi-users text-8xl mb-6" style="color: rgba(212,175,55,0.2)"></i>
+      <h2 class="text-2xl font-bold mb-3" style="color: var(--p-primary-color)">Free Company</h2>
+      <p class="text-surface-400 max-w-md">No Free Company linked. Link a character that belongs to an FC to see this dashboard.</p>
     </div>
   }
 </div>

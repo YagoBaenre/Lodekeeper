@@ -1,27 +1,31 @@
-<div class="auth-container">
-  <h1>Login</h1>
+<div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--p-primary-color) 10%, transparent 30%)">
+  <div class="w-full pt-10 pb-20 px-8 sm:px-20" style="border-radius: 53px; background: var(--p-content-background)">
 
-  @if (error()) {
-    <div class="error-message">{{ error() }}</div>
-  }
-
-  <form (ngSubmit)="onSubmit()">
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input id="email" type="email" [(ngModel)]="email" name="email" required />
+    <div class="text-center mb-8">
+      <i class="pi pi-shield mb-5 block" style="font-size: 3.5rem; color: var(--p-primary-color)"></i>
+      <div class="text-3xl font-medium mb-4" style="color: var(--p-text-color)">¡Bienvenido a Lodekeeper!</div>
+      <span class="text-muted-color font-medium">Introduce tus credenciales para continuar</span>
     </div>
 
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input id="password" type="password" [(ngModel)]="password" name="password" required />
+    @if (error()) {
+      <p-message severity="error" class="block mb-5 w-full">{{ error() }}</p-message>
+    }
+
+    <div>
+      <label for="email" class="block font-medium text-xl mb-2" style="color: var(--p-text-color)">Email</label>
+      <input pInputText id="email" type="email" placeholder="tu@email.com" class="w-full mb-8" [(ngModel)]="email" />
+
+      <label for="password" class="block font-medium text-xl mb-2" style="color: var(--p-text-color)">Contraseña</label>
+      <p-password id="password" [(ngModel)]="password" placeholder="Tu contraseña" [toggleMask]="true"
+        class="mb-8" [fluid]="true" [feedback]="false" />
+
+      <p-button [label]="loading() ? 'Accediendo...' : 'Acceder'" styleClass="w-full mt-4" (onClick)="onSubmit()"
+        [disabled]="!email || !password || loading()" [loading]="loading()" />
     </div>
 
-    <button type="submit" [disabled]="loading()">
-      {{ loading() ? 'Logging in...' : 'Login' }}
-    </button>
-  </form>
-
-  <p class="auth-link">
-    Don't have an account? <a routerLink="/auth/register">Register</a>
-  </p>
+    <p class="text-center text-muted-color text-sm mt-8">
+      ¿No tienes cuenta?
+      <a routerLink="/auth/register" class="font-medium no-underline ml-1" style="color: var(--p-primary-color)">Regístrate</a>
+    </p>
+  </div>
 </div>

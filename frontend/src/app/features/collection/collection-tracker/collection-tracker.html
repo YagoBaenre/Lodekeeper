@@ -1,34 +1,65 @@
-<div class="collection-tracker">
-  <h1>Collections</h1>
+<div class="px-6 py-8 max-w-6xl mx-auto">
 
-  <div class="type-tabs">
+  <h1 class="text-4xl font-bold mb-6" style="color: var(--p-primary-color)">Collections</h1>
+
+  <div class="flex gap-2 mb-5 flex-wrap">
     @for (type of types; track type.value) {
-      <button
-        class="tab"
-        [class.active]="activeType() === type.value"
-        (click)="setType(type.value)"
-      >
-        {{ type.label }}
-      </button>
+      <p-button
+        [label]="type.label"
+        [severity]="activeType() === type.value ? undefined : 'secondary'"
+        (onClick)="setType(type.value)"
+        size="small"
+      />
     }
   </div>
 
+  <div class="mb-6">
+    <input
+      pInputText
+      type="text"
+      placeholder="Search collectibles..."
+      [ngModel]="searchTerm()"
+      (ngModelChange)="onSearch($event)"
+      class="w-full"
+    />
+  </div>
+
   @if (loading()) {
-    <p class="loading">Loading...</p>
+    <div class="flex items-center justify-center py-24">
+      <p-progressSpinner strokeWidth="4" />
+    </div>
+  } @else if (collectibles().length === 0) {
+    <div class="flex flex-col items-center justify-center py-20 text-center">
+      <i class="pi pi-inbox text-8xl mb-4" style="color: rgba(212,175,55,0.2)"></i>
+      <p class="text-surface-400">No collectibles found for this category.</p>
+    </div>
   } @else {
-    <div class="collectible-grid">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
       @for (item of collectibles(); track item.id) {
-        <div class="collectible-card">
+        <div class="flex items-center gap-3 p-3 rounded-xl"
+             [style]="item.owned
+               ? 'background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.3)'
+               : 'background: var(--p-content-background); border: 1px solid var(--p-content-border-color)'">
           @if (item.icon) {
-            <img [src]="item.icon" [alt]="item.name" class="collectible-icon" />
+            <img [src]="item.icon" [alt]="item.name" class="w-10 h-10 rounded-lg shrink-0" />
+          } @else {
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style="background: #0f0f1a">
+              <i class="pi pi-image text-surface-600"></i>
+            </div>
           }
-          <span class="collectible-name">{{ item.name }}</span>
+          <span class="text-surface-100 text-sm flex-1 leading-snug">{{ item.name }}</span>
+          @if (characterId()) {
+            <p-button
+              [icon]="item.owned ? 'pi pi-check' : 'pi pi-plus'"
+              [severity]="item.owned ? 'success' : 'secondary'"
+              size="small"
+              [rounded]="true"
+              [text]="true"
+              (onClick)="toggleOwned(item)"
+            />
+          }
         </div>
       }
     </div>
-
-    @if (collectibles().length === 0) {
-      <p class="empty">No collectibles found for this category.</p>
-    }
   }
 </div>

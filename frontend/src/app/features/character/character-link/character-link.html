@@ -1,26 +1,24 @@
-<div class="link-container">
-  <h1>Link Character</h1>
-  <p class="description">Enter your Lodestone character ID to link your FFXIV character.</p>
+<div class="min-h-screen flex items-center justify-center px-4 py-12">
+  <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--p-primary-color) 10%, transparent 30%)" class="w-full max-w-md">
+    <div class="w-full pt-10 pb-16 px-8 sm:px-12" style="border-radius: 53px; background: var(--p-content-background)">
 
-  @if (error()) {
-    <div class="error-message">{{ error() }}</div>
-  }
+      <div class="text-center mb-8">
+        <i class="pi pi-user text-5xl mb-4 block" style="color: var(--p-primary-color)"></i>
+        <h1 class="text-3xl font-bold mb-1" style="color: var(--p-primary-color)">Link Character</h1>
+        <span class="text-surface-400 text-sm">Enter your Lodestone character ID to link your FFXIV character.</span>
+      </div>
 
-  <form (ngSubmit)="onSubmit()">
-    <div class="form-group">
-      <label for="lodestoneId">Lodestone ID</label>
-      <input
-        id="lodestoneId"
-        type="text"
-        [(ngModel)]="lodestoneId"
-        name="lodestoneId"
-        placeholder="e.g. 12345678"
-        required
-      />
+      @if (error()) {
+        <p-message severity="error" class="block mb-5 w-full">{{ error() }}</p-message>
+      }
+
+      <form (ngSubmit)="onSubmit()" class="flex flex-col gap-5">
+        <div class="flex flex-col gap-2">
+          <label for="lodestoneId" class="font-medium text-surface-200">Lodestone ID</label>
+          <input pInputText id="lodestoneId" type="text" [(ngModel)]="lodestoneId" name="lodestoneId" placeholder="e.g. 12345678" class="w-full" required />
+        </div>
+        <p-button type="submit" label="Link Character" icon="pi pi-link" styleClass="w-full" [loading]="loading()" />
+      </form>
     </div>
-
-    <button type="submit" [disabled]="loading()">
-      {{ loading() ? 'Linking...' : 'Link Character' }}
-    </button>
-  </form>
+  </div>
 </div>

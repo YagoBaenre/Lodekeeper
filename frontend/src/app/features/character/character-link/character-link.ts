@@ -1,11 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Button } from 'primeng/button';
+import { InputText } from 'primeng/inputtext';
+import { Message } from 'primeng/message';
 import { CharacterService } from '../../../core/services/character.service';
 
 @Component({
   selector: 'app-character-link',
-  imports: [FormsModule],
+  imports: [FormsModule, Button, InputText, Message],
   templateUrl: './character-link.html',
   styleUrl: './character-link.scss',
 })

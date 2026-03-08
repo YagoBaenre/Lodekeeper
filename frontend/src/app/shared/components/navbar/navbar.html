@@ -1,16 +1,24 @@
-<nav class="navbar">
-  <a routerLink="/" class="navbar-brand">Lodekeeper</a>
+<nav class="flex items-center justify-between px-6 py-3" style="background: var(--p-content-background); border-bottom: 1px solid var(--p-content-border-color)">
+  <a routerLink="/" class="flex items-center gap-2 no-underline font-bold text-lg" style="color: var(--p-primary-color)">
+    <i class="pi pi-shield"></i>
+    Lodekeeper
+  </a>
 
-  <div class="navbar-links">
+  <div class="flex items-center gap-1">
     @if (isAuthenticated()) {
-      <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-      <a routerLink="/characters" routerLinkActive="active">Characters</a>
-      <a routerLink="/collections" routerLinkActive="active">Collections</a>
-      <a routerLink="/fc" routerLinkActive="active">Free Company</a>
-      <button class="btn-logout" (click)="logout()">Logout</button>
+      <a routerLink="/dashboard" routerLinkActive="nav-active" class="nav-link flex items-center gap-2 px-3 py-2 rounded-lg no-underline text-sm font-medium text-surface-300 hover:text-surface-0 transition-colors">
+        <i class="pi pi-home"></i> Dashboard
+      </a>
+      <a routerLink="/collections" routerLinkActive="nav-active" class="nav-link flex items-center gap-2 px-3 py-2 rounded-lg no-underline text-sm font-medium text-surface-300 hover:text-surface-0 transition-colors">
+        <i class="pi pi-star"></i> Collections
+      </a>
+      <a routerLink="/fc" routerLinkActive="nav-active" class="nav-link flex items-center gap-2 px-3 py-2 rounded-lg no-underline text-sm font-medium text-surface-300 hover:text-surface-0 transition-colors">
+        <i class="pi pi-users"></i> Free Company
+      </a>
+      <p-button label="Logout" icon="pi pi-sign-out" severity="secondary" size="small" [text]="true" (onClick)="logout()" />
     } @else {
-      <a routerLink="/auth/login" routerLinkActive="active">Login</a>
-      <a routerLink="/auth/register" routerLinkActive="active">Register</a>
+      <a routerLink="/auth/login" class="nav-link flex items-center gap-2 px-3 py-2 rounded-lg no-underline text-sm font-medium text-surface-300 hover:text-surface-0 transition-colors">Login</a>
+      <p-button label="Register" icon="pi pi-user-plus" size="small" routerLink="/auth/register" />
     }
   </div>
 </nav>

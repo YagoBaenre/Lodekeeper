@@ -1,4 +1,5 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { Character: CharacterParser, FreeCompany: FCParser, FCMembers: FCMembersParser } = require('@xivapi/nodestone');
 
@@ -37,9 +38,31 @@ export interface LodestoneFCMember {
 @Injectable()
 export class LodestoneService {
   private readonly logger = new Logger(LodestoneService.name);
-  private readonly characterParser = new CharacterParser();
-  private readonly fcParser = new FCParser();
-  private readonly fcMembersParser = new FCMembersParser();
+  private readonly characterParser;
+  private readonly fcParser;
+  private readonly fcMembersParser;
+
+  constructor(private readonly configService: ConfigService) {
+    const region = this.configService.get<string>('LODESTONE_REGION', 'na');
+
+    this.characterParser = new (class extends CharacterParser {
+      getURL(req: { params: { characterId: string } }) {
+        return `https://${region}.finalfantasyxiv.com/lodestone/character/${req.params.characterId}`;
+      }
+    })();
+
+    this.fcParser = new (class extends FCParser {
+      getURL(req: { params: { fcId: string } }) {
+        return `https://${region}.finalfantasyxiv.com/lodestone/freecompany/${req.params.fcId}`;
+      }
+    })();
+
+    this.fcMembersParser = new (class extends FCMembersParser {
+      getBaseURL(req: { params: { fcId: string } }) {
+        return `https://${region}.finalfantasyxiv.com/lodestone/freecompany/${req.params.fcId}/member`;
+      }
+    })();
+  }
 
   async fetchCharacter(lodestoneId: string): Promise<LodestoneCharacterData> {
     this.logger.log(`Fetching character ${lodestoneId} from Lodestone`);

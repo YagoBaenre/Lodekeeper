@@ -1,12 +1,17 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Button } from 'primeng/button';
+import { Tag } from 'primeng/tag';
+import { ProgressBar } from 'primeng/progressbar';
+import { Message } from 'primeng/message';
+import { ProgressSpinner } from 'primeng/progressspinner';
 import { CharacterService } from '../../../core/services/character.service';
 import { CollectionService } from '../../../core/services/collection.service';
 import { Character, CollectionProgress, CollectibleType } from '../../../core/models';
 
 @Component({
   selector: 'app-character-detail',
-  imports: [RouterLink],
+  imports: [RouterLink, Button, Tag, ProgressBar, Message, ProgressSpinner],
   templateUrl: './character-detail.html',
   styleUrl: './character-detail.scss',
 })
@@ -18,12 +23,21 @@ export class CharacterDetail implements OnInit {
   protected character = signal<Character | null>(null);
   protected mountProgress = signal<CollectionProgress | null>(null);
   protected minionProgress = signal<CollectionProgress | null>(null);
+  protected loading = signal(true);
+  protected error = signal<string | null>(null);
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
     this.characterService.getCharacter(id).subscribe({
-      next: (char) => this.character.set(char),
+      next: (char) => {
+        this.character.set(char);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('Character not found or could not be loaded.');
+        this.loading.set(false);
+      },
     });
 
     this.collectionService.getCharacterCollection(id, CollectibleType.MOUNT).subscribe({

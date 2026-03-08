@@ -14,9 +14,10 @@ export class CollectionService {
 
   constructor(private readonly http: HttpClient) {}
 
-  getCollectibles(type?: CollectibleType) {
+  getCollectibles(type?: CollectibleType, search?: string) {
     let params = new HttpParams();
     if (type) params = params.set('type', type);
+    if (search) params = params.set('search', search);
     return this.http.get<Collectible[]>(`${this.apiUrl}/collectibles`, { params });
   }
 
@@ -24,12 +25,20 @@ export class CollectionService {
     return this.http.get<Collectible>(`${this.apiUrl}/collectibles/${id}`);
   }
 
-  getCharacterCollection(characterId: number, type?: CollectibleType) {
+  getCharacterCollection(characterId: number, type?: CollectibleType, search?: string) {
     let params = new HttpParams();
     if (type) params = params.set('type', type);
+    if (search) params = params.set('search', search);
     return this.http.get<CollectionProgress>(
       `${this.apiUrl}/characters/${characterId}/collections`,
       { params },
+    );
+  }
+
+  toggleCollectible(characterId: number, collectibleId: number) {
+    return this.http.post<{ owned: boolean }>(
+      `${this.apiUrl}/characters/${characterId}/collections/toggle`,
+      { collectibleId },
     );
   }
 

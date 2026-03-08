@@ -1,17 +1,28 @@
-<div class="leaderboard">
-  <h1>FC Leaderboard</h1>
+<div class="px-6 py-8 max-w-4xl mx-auto">
+
+  <h1 class="text-4xl font-bold mb-8" style="color: var(--p-primary-color)">FC Leaderboard</h1>
 
   @if (leaderboard().length > 0) {
-    <div class="leaderboard-list">
+    <div class="rounded-2xl overflow-hidden" style="background: var(--p-content-background); border: 1px solid var(--p-content-border-color)">
       @for (entry of leaderboard(); track entry.characterId) {
-        <div class="leaderboard-row" [class.top-3]="entry.rank <= 3">
-          <span class="rank">#{{ entry.rank }}</span>
-          <span class="name">{{ entry.characterName }}</span>
-          <span class="count">{{ entry.totalCollectibles }} collectibles</span>
+        <div class="flex items-center gap-4 px-6 py-4"
+             [style]="entry.rank <= 3
+               ? 'border-bottom: 1px solid var(--p-content-border-color); background: rgba(212,175,55,0.05)'
+               : 'border-bottom: 1px solid var(--p-content-border-color)'">
+          <span class="font-bold text-lg w-10 text-center shrink-0"
+                [style]="entry.rank === 1 ? 'color: #d4af37'
+                       : entry.rank === 2 ? 'color: #a8a9ad'
+                       : entry.rank === 3 ? 'color: #cd7f32'
+                       : 'color: #64748b'">#{{ entry.rank }}</span>
+          <span class="text-surface-0 font-medium flex-1">{{ entry.characterName }}</span>
+          <p-tag [value]="entry.totalCollectibles + ' collectibles'" severity="info" />
         </div>
       }
     </div>
   } @else {
-    <p class="empty">No leaderboard data available.</p>
+    <div class="flex flex-col items-center justify-center py-20 text-center">
+      <i class="pi pi-chart-bar text-8xl mb-4" style="color: rgba(212,175,55,0.2)"></i>
+      <p class="text-surface-400">No leaderboard data available.</p>
+    </div>
   }
 </div>

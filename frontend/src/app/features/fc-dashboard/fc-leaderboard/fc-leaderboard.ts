@@ -1,11 +1,12 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { Tag } from 'primeng/tag';
 import { CharacterService } from '../../../core/services/character.service';
 import { FcService } from '../../../core/services/fc.service';
 import { FCLeaderboardEntry } from '../../../core/models';
 
 @Component({
   selector: 'app-fc-leaderboard',
-  imports: [],
+  imports: [Tag],
   templateUrl: './fc-leaderboard.html',
   styleUrl: './fc-leaderboard.scss',
 })

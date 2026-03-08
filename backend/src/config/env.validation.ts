@@ -1,5 +1,5 @@
 import { plainToInstance } from 'class-transformer';
-import { IsEnum, IsNumber, IsString, validateSync } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString, validateSync } from 'class-validator';
 
 enum Environment {
   Development = 'development',
@@ -25,6 +25,10 @@ class EnvironmentVariables {
 
   @IsString()
   XIVAPI_BASE_URL: string;
+
+  @IsOptional()
+  @IsEnum(['na', 'eu', 'jp'], { message: 'LODESTONE_REGION must be na, eu, or jp' })
+  LODESTONE_REGION: string = 'na';
 }
 
 export function validate(config: Record<string, unknown>) {

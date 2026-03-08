@@ -22,9 +22,11 @@ export class CollectionsService {
     private readonly charAchievementRepo: Repository<CharacterAchievement>,
   ) {}
 
-  async findAllCollectibles(type?: CollectibleType): Promise<Collectible[]> {
-    const where = type ? { type } : {};
-    return this.collectibleRepo.find({ where, order: { name: 'ASC' } });
+  async findAllCollectibles(type?: CollectibleType, search?: string): Promise<Collectible[]> {
+    const qb = this.collectibleRepo.createQueryBuilder('c').orderBy('c.name', 'ASC');
+    if (type) qb.andWhere('c.type = :type', { type });
+    if (search) qb.andWhere('LOWER(c.name) LIKE LOWER(:search)', { search: `%${search}%` });
+    return qb.getMany();
   }
 
   async findCollectibleById(id: number): Promise<Collectible> {
@@ -33,22 +35,40 @@ export class CollectionsService {
     return collectible;
   }
 
-  async getCharacterCollection(characterId: number, type?: CollectibleType) {
-    const allCollectibles = await this.findAllCollectibles(type);
-    const owned = await this.charCollectibleRepo.find({
-      where: { characterId },
-      relations: ['collectible'],
+  async toggleCharacterCollectible(characterId: number, collectibleId: number): Promise<{ owned: boolean }> {
+    const existing = await this.charCollectibleRepo.findOne({
+      where: { characterId, collectibleId },
     });
+    if (existing) {
+      await this.charCollectibleRepo.remove(existing);
+      return { owned: false };
+    }
+    await this.charCollectibleRepo.save(
+      this.charCollectibleRepo.create({ characterId, collectibleId, obtainedAt: new Date() }),
+    );
+    return { owned: true };
+  }
+
+  async getCharacterCollection(characterId: number, type?: CollectibleType, search?: string) {
+    const allCollectibles = await this.findAllCollectibles(type, search);
+    const ownedQuery = this.charCollectibleRepo
+      .createQueryBuilder('cc')
+      .innerJoinAndSelect('cc.collectible', 'c')
+      .where('cc.characterId = :characterId', { characterId });
+    if (type) ownedQuery.andWhere('c.type = :type', { type });
+    const owned = await ownedQuery.getMany();
 
     const ownedIds = new Set(owned.map((o) => o.collectibleId));
     const missing = allCollectibles.filter((c) => !ownedIds.has(c.id));
 
+    const total = type
+      ? (await this.collectibleRepo.count({ where: { type } }))
+      : allCollectibles.length;
+
     return {
-      total: allCollectibles.length,
+      total,
       owned: owned.length,
-      percentage: allCollectibles.length > 0
-        ? Math.round((owned.length / allCollectibles.length) * 100)
-        : 0,
+      percentage: total > 0 ? Math.round((owned.length / total) * 100) : 0,
       missing,
       ownedItems: owned,
     };

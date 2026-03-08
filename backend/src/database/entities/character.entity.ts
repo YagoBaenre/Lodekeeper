@@ -38,8 +38,8 @@ export class Character {
   @Column({ default: false })
   verified: boolean;
 
-  @Column({ nullable: true })
-  verificationCode: string;
+  @Column({ type: 'varchar', nullable: true })
+  verificationCode: string | null;
 
   @ManyToOne(() => User, (user) => user.characters, { onDelete: 'CASCADE' })
   user: User;
