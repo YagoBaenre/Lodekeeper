@@ -37,7 +37,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
       @for (item of collectibles(); track item.id) {
         <div class="flex items-center gap-3 p-3 rounded-xl"
-             [style]="item.owned
+             [style]="item.isOwned
                ? 'background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.3)'
                : 'background: var(--p-content-background); border: 1px solid var(--p-content-border-color)'">
           @if (item.icon) {
@@ -50,8 +50,8 @@
           <span class="text-surface-100 text-sm flex-1 leading-snug">{{ item.name }}</span>
           @if (characterId()) {
             <p-button
-              [icon]="item.owned ? 'pi pi-check' : 'pi pi-plus'"
-              [severity]="item.owned ? 'success' : 'secondary'"
+              [icon]="item.isOwned ? 'pi pi-check' : 'pi pi-plus'"
+              [severity]="item.isOwned ? 'success' : 'secondary'"
               size="small"
               [rounded]="true"
               [text]="true"

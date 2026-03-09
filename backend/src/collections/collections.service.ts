@@ -131,9 +131,61 @@ export class CollectionsService {
     }
   }
 
+  /**
+   * Bulk upsert collectibles — much faster than one-by-one.
+   * Uses externalId + type as the unique key for upsert.
+   */
+  async bulkUpsertCollectibles(items: Partial<Collectible>[]): Promise<void> {
+    if (items.length === 0) return;
+
+    // Process in chunks to avoid overwhelming the DB
+    const chunkSize = 200;
+    for (let i = 0; i < items.length; i += chunkSize) {
+      const chunk = items.slice(i, i + chunkSize);
+      await this.collectibleRepo
+        .createQueryBuilder()
+        .insert()
+        .into(Collectible)
+        .values(chunk)
+        .orUpdate(
+          [
+            'name', 'icon', 'image', 'description', 'enhanced_description',
+            'tooltip', 'patch', 'owned', 'tradeable', 'sources', 'movement',
+            'seats', 'command', 'female_name', 'category', 'item_id', 'order',
+          ],
+          ['externalId', 'type'],
+        )
+        .execute();
+    }
+  }
+
+  /**
+   * Bulk upsert achievements — much faster than one-by-one.
+   * Uses externalId as the unique key for upsert.
+   */
+  async bulkUpsertAchievements(items: Partial<Achievement>[]): Promise<void> {
+    if (items.length === 0) return;
+
+    const chunkSize = 200;
+    for (let i = 0; i < items.length; i += chunkSize) {
+      const chunk = items.slice(i, i + chunkSize);
+      await this.achievementRepo
+        .createQueryBuilder()
+        .insert()
+        .into(Achievement)
+        .values(chunk)
+        .orUpdate(
+          ['name', 'description', 'points', 'icon', 'patch', 'owned', 'order', 'category', 'type_name'],
+          ['externalId'],
+        )
+        .execute();
+    }
+  }
+
+  /** @deprecated Use bulkUpsertCollectibles instead */
   async upsertCollectible(data: Partial<Collectible>): Promise<Collectible> {
     const existing = await this.collectibleRepo.findOne({
-      where: { xivapiId: data.xivapiId, type: data.type },
+      where: { externalId: data.externalId, type: data.type },
     });
     if (existing) {
       Object.assign(existing, data);
@@ -142,9 +194,10 @@ export class CollectionsService {
     return this.collectibleRepo.save(this.collectibleRepo.create(data));
   }
 
+  /** @deprecated Use bulkUpsertAchievements instead */
   async upsertAchievement(data: Partial<Achievement>): Promise<Achievement> {
     const existing = await this.achievementRepo.findOne({
-      where: { xivapiId: data.xivapiId },
+      where: { externalId: data.externalId },
     });
     if (existing) {
       Object.assign(existing, data);

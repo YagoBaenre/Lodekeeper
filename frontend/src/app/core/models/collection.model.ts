@@ -1,12 +1,31 @@
+export interface CollectibleSourceEntry {
+  type: string;
+  text: string;
+  related_type?: string | null;
+  related_id?: number | null;
+}
+
 export interface Collectible {
   id: number;
-  xivapiId: number;
+  externalId: number;
   type: CollectibleType;
   name: string;
   icon: string;
-  source: CollectibleSource;
-  patch?: string;
+  image?: string;
   description?: string;
+  enhanced_description?: string;
+  tooltip?: string;
+  patch?: string;
+  owned?: string;
+  tradeable?: boolean;
+  sources?: CollectibleSourceEntry[];
+  movement?: string;
+  seats?: number;
+  command?: string;
+  female_name?: string;
+  category?: string;
+  item_id?: number;
+  order?: number;
 }
 
 export enum CollectibleType {
@@ -16,19 +35,6 @@ export enum CollectibleType {
   EMOTE = 'emote',
   HAIRSTYLE = 'hairstyle',
   ORCHESTRION = 'orchestrion',
-}
-
-export enum CollectibleSource {
-  RAID = 'raid',
-  TRIAL = 'trial',
-  DUNGEON = 'dungeon',
-  CRAFTING = 'crafting',
-  TREASURE_MAP = 'treasure_map',
-  PVP = 'pvp',
-  MOGSTATION = 'mogstation',
-  ACHIEVEMENT = 'achievement',
-  EVENT = 'event',
-  OTHER = 'other',
 }
 
 export interface CollectionProgress {
@@ -49,13 +55,16 @@ export interface CharacterCollectible {
 
 export interface Achievement {
   id: number;
-  xivapiId: number;
+  externalId: number;
   name: string;
   description?: string;
   category?: string;
+  type_name?: string;
   points: number;
   icon?: string;
   patch?: string;
+  owned?: string;
+  order?: number;
 }
 
 export interface AchievementProgress {

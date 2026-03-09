@@ -9,7 +9,7 @@ import { CollectionService } from '../../../core/services/collection.service';
 import { Collectible, CollectibleType } from '../../../core/models';
 
 interface TrackedCollectible extends Collectible {
-  owned: boolean;
+  isOwned: boolean;
 }
 
 @Component({
@@ -66,7 +66,7 @@ export class CollectionTracker implements OnInit {
     this.collectionService.toggleCollectible(charId, item.id).subscribe({
       next: (res) => {
         this.collectibles.update((list) =>
-          list.map((c) => (c.id === item.id ? { ...c, owned: res.owned } : c)),
+          list.map((c) => (c.id === item.id ? { ...c, isOwned: res.owned } : c)),
         );
       },
     });
@@ -82,11 +82,11 @@ export class CollectionTracker implements OnInit {
         next: (progress) => {
           const owned: TrackedCollectible[] = progress.ownedItems.map((oi) => ({
             ...oi.collectible,
-            owned: true,
+            isOwned: true,
           }));
           const missing: TrackedCollectible[] = progress.missing.map((c) => ({
             ...c,
-            owned: false,
+            isOwned: false,
           }));
           const all = [...owned, ...missing].sort((a, b) => a.name.localeCompare(b.name));
           this.collectibles.set(all);
@@ -96,7 +96,7 @@ export class CollectionTracker implements OnInit {
     } else {
       this.collectionService.getCollectibles(this.activeType(), search).subscribe({
         next: (items) => {
-          this.collectibles.set(items.map((c) => ({ ...c, owned: false })));
+          this.collectibles.set(items.map((c) => ({ ...c, isOwned: false })));
           this.loading.set(false);
         },
       });

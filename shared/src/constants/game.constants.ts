@@ -1,4 +1,4 @@
-export const XIVAPI_BASE_URL = 'https://v2.xivapi.com';
+export const FFXIV_COLLECT_BASE_URL = 'https://ffxivcollect.com';
 
 export const DATA_CENTERS = {
   Aether: ['Adamantoise', 'Cactuar', 'Faerie', 'Gilgamesh', 'Jenova', 'Midgardsormr', 'Sargatanas', 'Siren'],
@@ -14,14 +14,15 @@ export const DATA_CENTERS = {
   Materia: ['Bismarck', 'Ravana', 'Sephirot', 'Sophia', 'Zurvan'],
 } as const;
 
-export const XIVAPI_SHEETS = {
-  MOUNT: 'Mount',
-  COMPANION: 'Companion',
-  ACHIEVEMENT: 'Achievement',
-  TITLE: 'Title',
-  EMOTE: 'Emote',
-  ITEM: 'Item',
-  ACTION: 'Action',
+/** FFXIV Collect API endpoints (append to base URL) */
+export const FFXIV_COLLECT_ENDPOINTS = {
+  MOUNTS: 'mounts',
+  MINIONS: 'minions',
+  ACHIEVEMENTS: 'achievements',
+  TITLES: 'titles',
+  EMOTES: 'emotes',
+  HAIRSTYLES: 'hairstyles',
+  ORCHESTRIONS: 'orchestrions',
 } as const;
 
 export const LODESTONE_BASE_URL = 'https://na.finalfantasyxiv.com/lodestone';

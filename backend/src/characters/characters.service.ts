@@ -1,24 +1,29 @@
 import {
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { randomBytes } from 'crypto';
-import { Character } from '../database/entities';
+import { Character, Collectible, CollectibleType } from '../database/entities';
 import { LodestoneService } from '../lodestone/lodestone.service';
 import { FreeCompanyService } from '../free-company/free-company.service';
+import { CollectionsService } from '../collections/collections.service';
 import { LinkCharacterDto } from './dto/link-character.dto';
 
 @Injectable()
 export class CharactersService {
+  private readonly logger = new Logger(CharactersService.name);
+
   constructor(
     @InjectRepository(Character)
     private readonly characterRepository: Repository<Character>,
     private readonly lodestoneService: LodestoneService,
     private readonly freeCompanyService: FreeCompanyService,
+    private readonly collectionsService: CollectionsService,
   ) {}
 
   async link(userId: number, dto: LinkCharacterDto): Promise<Character> {
@@ -73,7 +78,12 @@ export class CharactersService {
 
     character.verified = true;
     character.verificationCode = null;
-    return this.characterRepository.save(character);
+    await this.characterRepository.save(character);
+
+    // Sync collections after verification
+    await this.syncCharacterCollections(character.id, character.lodestoneId);
+
+    return this.findById(character.id);
   }
 
   async findByUser(userId: number): Promise<Character[]> {
@@ -114,7 +124,74 @@ export class CharactersService {
       character.freeCompanyId = fc.id;
     }
 
-    return this.characterRepository.save(character);
+    await this.characterRepository.save(character);
+
+    // Sync collections from Lodestone
+    await this.syncCharacterCollections(character.id, character.lodestoneId);
+
+    return this.findById(character.id);
+  }
+
+  /**
+   * Scrape the character's Lodestone mount/minion pages and sync with our DB.
+   * Matches by name (case-insensitive) against known collectibles.
+   */
+  async syncCharacterCollections(characterId: number, lodestoneId: string): Promise<void> {
+    this.logger.log(`Syncing collections for character ${characterId} (Lodestone: ${lodestoneId})`);
+
+    try {
+      // Fetch mounts and minions from Lodestone in parallel
+      const [mountNames, minionNames] = await Promise.all([
+        this.lodestoneService.fetchCharacterMounts(lodestoneId),
+        this.lodestoneService.fetchCharacterMinions(lodestoneId),
+      ]);
+
+      // Match names against our DB collectibles
+      const mountIds = await this.matchCollectibleNames(mountNames, CollectibleType.MOUNT);
+      const minionIds = await this.matchCollectibleNames(minionNames, CollectibleType.MINION);
+
+      const allIds = [...mountIds, ...minionIds];
+
+      if (allIds.length > 0) {
+        await this.collectionsService.syncCharacterCollectibles(characterId, allIds);
+        this.logger.log(
+          `Synced ${mountIds.length} mounts and ${minionIds.length} minions for character ${characterId}`,
+        );
+      }
+    } catch (error) {
+      this.logger.error(
+        `Failed to sync collections for character ${characterId}`,
+        error instanceof Error ? error.message : String(error),
+      );
+    }
+  }
+
+  /**
+   * Match an array of collectible names against the DB.
+   * Returns the internal IDs of matching collectibles.
+   */
+  private async matchCollectibleNames(names: string[], type: CollectibleType): Promise<number[]> {
+    if (names.length === 0) return [];
+
+    const allCollectibles = await this.collectionsService.findAllCollectibles(type);
+
+    // Build a case-insensitive name map
+    const nameMap = new Map<string, Collectible>();
+    for (const c of allCollectibles) {
+      nameMap.set(c.name.toLowerCase(), c);
+    }
+
+    const matchedIds: number[] = [];
+    for (const name of names) {
+      const match = nameMap.get(name.toLowerCase());
+      if (match) {
+        matchedIds.push(match.id);
+      } else {
+        this.logger.warn(`No match found for ${type}: "${name}"`);
+      }
+    }
+
+    return matchedIds;
   }
 
   private async linkFreeCompany(lodestoneFcId: string) {

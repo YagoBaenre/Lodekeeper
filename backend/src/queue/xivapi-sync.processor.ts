@@ -18,7 +18,9 @@ export class XivapiSyncProcessor extends WorkerHost {
     try {
       const result = await this.xivapiService.syncAll();
       this.logger.log(
-        `XIVAPI sync complete: ${result.mounts} mounts, ${result.minions} minions, ${result.achievements} achievements`,
+        `FFXIV Collect sync complete: ${result.mounts} mounts, ${result.minions} minions, ` +
+        `${result.emotes} emotes, ${result.titles} titles, ${result.hairstyles} hairstyles, ` +
+        `${result.orchestrions} orchestrions, ${result.achievements} achievements`,
       );
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);

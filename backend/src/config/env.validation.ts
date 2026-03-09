@@ -23,8 +23,9 @@ class EnvironmentVariables {
   @IsString()
   JWT_SECRET: string;
 
+  @IsOptional()
   @IsString()
-  XIVAPI_BASE_URL: string;
+  FFXIV_COLLECT_BASE_URL: string = 'https://ffxivcollect.com';
 
   @IsOptional()
   @IsEnum(['na', 'eu', 'jp'], { message: 'LODESTONE_REGION must be na, eu, or jp' })

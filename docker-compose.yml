@@ -23,7 +23,7 @@ services:
       - DATABASE_URL=postgresql://lodekeeper:${DB_PASSWORD}@postgres:5432/lodekeeper
       - REDIS_URL=redis://redis:6379
       - JWT_SECRET=${JWT_SECRET}
-      - XIVAPI_BASE_URL=https://v2.xivapi.com
+      - FFXIV_COLLECT_BASE_URL=https://ffxivcollect.com
       - NODE_ENV=development
       - PORT=3000
 
